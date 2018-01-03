@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request; 
+
 class HomeController extends Controller
 {
-
 
 	 public function __construct()
     {
@@ -36,29 +36,23 @@ class HomeController extends Controller
 		try{
 
 			$urlData = $request->get('urlData');
-			$urlArr  = explode(',',$urlData);
-			
-			$result  = [];
-			foreach($urlArr as $url){
-				
-				$url  = trim($url);
+			 
+			$url  = trim($urlData);
 
-				if(filter_var($url, FILTER_VALIDATE_URL) == false){
-					// $url = 'http://'.$url;
-					$result[] = 'Invalid Url';
-					continue;
-				}
-
-				$html = new \Htmldom($url);
-				$title = $html->find('title',0)->innertext;
-				$result[] = $title;
+			if(filter_var($url, FILTER_VALIDATE_URL) == false){
+				// $url = 'http://'.$url;
+				 return trans('messages.error.invalid_url');
 			}
 
-			return response()->json($result);
+			$html = new \Htmldom($url);
+			$title = $html->find('title',0)->innertext;
+			
+			return $title;
 
 		}catch(\Exception $exp){
                 self::logError($exp, __CLASS__, __METHOD__);
-                return response()->json([]);
+                // return response()->json([]);
+                return trans('messages.error.server_error');
         }
 	}
 
