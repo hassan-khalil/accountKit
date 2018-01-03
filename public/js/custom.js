@@ -1,19 +1,25 @@
+  // Pusher.logToConsole = true;
+    var pusher = new Pusher('enter-pusher-app-id', {
+      cluster: 'us2',
+      encrypted: false
+    });
+
+    var channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', function(data) {
+      $('#result').append('<p>'+data.message+'</p>'); 
+      
+    });
+
     $('#submit').click(function(){
             var urlData  = $('#url').val();
             var token    = $('meta[name=csrf-token]').attr('content');
-
             if(urlData == ''){
                 alert('You forgot to enter url');
                 return false;
             }
-            
-            var urlArr = urlData.split(',');
-            
+             
             $('#result').empty();
-            
-            $.each(urlArr, function( index, value ) {
-              sendRequest(value, token);
-            });
+            sendRequest(urlData, token);
     });
 
     /**
@@ -28,7 +34,7 @@
             type    : 'post',
             data    : {urlData : url , _token : token}, 
             success : function(response) {
-                        $('#result').append('<p>'+response+'</p>');             
+                        // $('#result').append('<p>'+response+'</p>');             
                         hideLoading();
             },
             error   : function(errResponse){

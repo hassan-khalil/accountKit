@@ -47,7 +47,8 @@ if (token) {
 
 // window.Pusher = require('pusher-js');
 
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: 'your-pusher-key'
-// });
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: '073e0d48d49db106a6dc',
+    cluster : 'us2'
+});
