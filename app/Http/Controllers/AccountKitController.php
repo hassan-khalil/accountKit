@@ -9,9 +9,9 @@ use GuzzleHttp\Client as GuzzleHttpClient;
 
 class AccountKitController extends Controller
 {
-     /**
-     * appId [string]
-     */
+    /**
+    * appId [string]
+    */
     protected $appId;
 
     /**
@@ -30,7 +30,7 @@ class AccountKitController extends Controller
     protected $endPointUrl;
 
     /**
-     * userAccessToken [string] 
+     * userAccessToken [string]
      */
     public $userAccessToken;
 
@@ -46,12 +46,12 @@ class AccountKitController extends Controller
 
 
     /**
-     * Login method 
-     * @param  Request $request 
+     * Login method
+     * @param  Request $request
      */
     public function login(Request $request)
     {
-        try{   
+        try {
             $url = $this->tokenExchangeUrl.'grant_type=authorization_code'.
                 '&code='. $request->get('code').
                 "&access_token=AA|$this->appId|$this->appSecret";
@@ -62,22 +62,21 @@ class AccountKitController extends Controller
             $this->userAccessToken = $body->access_token;
 
             return $this->getData();
-
-        }catch(\Exception $exp){
-                self::logError($exp, __CLASS__, __METHOD__);
-                return Redirect(url('/'))->with(['serverError' => trans('messages.error.server_error')]);
-        }    
+        } catch (\Exception $exp) {
+            self::logError($exp, __CLASS__, __METHOD__);
+            return Redirect(url('/'))->with(['serverError' => trans('messages.error.server_error')]);
+        }
     }
 
-    /** 
-     *  method to get logged in user detail ,
+    /**
+     *  Get Logged in user detail ,
      *  save user detail in db
-     *  Auth login with user 
-     *  and then redirect to the second page 
-     */ 
+     *  Auth login with user
+     *  and then redirect to the second page
+     */
     public function getData()
     {
-        try{   
+        try {
             $request = $this->client->request('GET', $this->endPointUrl.$this->userAccessToken);
 
             $data = json_decode($request->getBody());
@@ -88,35 +87,32 @@ class AccountKitController extends Controller
 
             $phone = isset($data->phone) ? $data->phone->number : '';
  
-            $userObj = User::where('fb_id','=', $userId)->first();
+            $userObj = User::where('fb_id', '=', $userId)->first();
 
-            if($userObj instanceOf User){
-
+            if ($userObj instanceof User) {
                 $userObj->setAccessToken($userAccessToken)->save();
-
-            }else{
-
+            } else {
                 $userObj = new User();
                 $userObj->fill([
                             'fb_id' => $userId,
-                            'phone' => $phone  
+                            'phone' => $phone
                             ])->setAccessToken($userAccessToken)->save();
             }
 
             \Auth::login($userObj);
             return Redirect(url('/home'));
-        
-        }catch(\Exception $exp){
-                self::logError($exp, __CLASS__, __METHOD__);
-                return Redirect(url('/'))->with(['serverError' => trans('messages.error.server_error')]);
+        } catch (\Exception $exp) {
+            self::logError($exp, __CLASS__, __METHOD__);
+            return Redirect(url('/'))->with(['serverError' => trans('messages.error.server_error')]);
         }
     }
 
     /**
-     *  Logout and redirect to main page 
+     *  Logout and redirect to main page
      */
-	public function logout(){
-		\Auth::logout();
-		return \Redirect(url('/'));
-	}
+    public function logout()
+    {
+        \Auth::logout();
+        return \Redirect(url('/'));
+    }
 }
